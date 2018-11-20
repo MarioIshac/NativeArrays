@@ -1,0 +1,12 @@
+native-arrays-core/src/main/resources/native/me_theeninja_nativearrays_core_IntArray.c
+native-arrays-core/src/main/resources/native/me_theeninja_nativearrays_core_IntArray.h
+native-arrays-core/src/main/resources/native/windows_native_compile.bat
+
+native-arrays-core/native-arrays-core.iml
+native-arrays-jmh/native-arrays-jmh.iml
+
+.idea
+NativeArrays.iml
+target
+
+*.log
