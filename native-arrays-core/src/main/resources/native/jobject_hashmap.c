@@ -2,20 +2,6 @@
 
 #define PARITION_COUNT 1024
 
-struct hashmap_node {
-    jobject* key;
-
-    jint* address;
-    jlong size;
-
-    struct hashmap_node* previous;
-    struct hashmap_node* next;
-};
-
-struct hashmap {
-    struct hashmap_node* nodes[PARITION_COUNT];
-};
-
 uintptr_t hashmap_hash(jobject* jObject) {
     return (uintptr_t) jObject;
 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 public class IntArrayBenchmark {
     private static final int VALUE_TO_COUNT = 0;
 
-    @Benchmark
+    // @Benchmark
     public void measureJavaArrayCount(JavaArrayOperation javaArrayOperation) {
         long count = 0;
 
@@ -28,7 +28,7 @@ public class IntArrayBenchmark {
         javaArrayOperation.setResult(count);
     }
 
-    @Benchmark
+    // @Benchmark
     public void measureNativeArrayCount(NativeArrayOperation nativeArrayOperation) {
         try (final IntArray ints = nativeArrayOperation.newValue()) {
             final long count = ints.count(VALUE_TO_COUNT);

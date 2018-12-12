@@ -11,8 +11,19 @@ extern "C" {
 
 #define PARITION_COUNT 1024
 
-struct hashmap_node;
-struct hashmap;
+struct hashmap_node {
+    jobject* key;
+
+    JAVA_TYPE* address;
+    jlong size;
+
+    struct hashmap_node* previous;
+    struct hashmap_node* next;
+};
+
+struct hashmap {
+    struct hashmap_node* nodes[PARITION_COUNT];
+};
 
 struct hashmap* hashmap_new();
 void hashmap_put(struct hashmap*, jobject*, JAVA_TYPE*, jlong);

@@ -2,7 +2,6 @@
 // http://www.latkin.org/blog/2016/02/01/jni-object-lifetimes-quick-reference/
 
 #include "jobject_hashmap.h"
-#include "array.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +19,13 @@
 #define JAVA_PACKAGE "me/theeninja/nativearrays/core/"
 
 #define ARRAY_CLASS_NAME JAVA_PACKAGE STRING(TYPE) "Array"
+
+#if SPECIALIZED_JAVA_CONSUMER
 #define CONSUMER_CLASS_NAME "java/util/function/" STRING(TYPE) "Consumer"
+#else
+#define CONSUMER_CLASS_NAME "me/theeninja/nativearrays/core" STRING(TYPE) "Consumer"
+#endif
+
 #define INDEX_VALUE_PAIR_CONSUMER_CLASS_NAME JAVA_PACKAGE "Index" STRING(TYPE) "PairConsumer"
 
 #define CONSUMER_APPLY "accept"
@@ -58,44 +63,78 @@ struct hashmap* hashMap;
 
 #define JNI_VERSION JNI_VERSION_10
 
+void check(JNIEnv* env) {
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionDescribe(env);
+    }
+}
+
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     JNIEnv* env;
     void** envAddress = (void **) &env;
+    printf("%i ", __LINE__);
 
     if ((*vm)->GetEnv(vm, envAddress, JNI_VERSION) != JNI_OK) {
         return JNI_ERR;
     }
+    printf("%i ", __LINE__);
 
     jclass localArrayClass = (*env)->FindClass(env, ARRAY_CLASS_NAME);
+    printf("%i ", __LINE__);
+
+    check(env);
+
     arrayClass = (*env)->NewGlobalRef(env, localArrayClass);
+    printf("%i ", __LINE__);
+
     addressField = (*env)->GetFieldID(env, arrayClass, ADDRESS_FIELD, LONG);
+    check(env);
+    printf("%i ", __LINE__);
+
     sizeField = (*env)->GetFieldID(env, arrayClass, SIZE_FIELD, LONG);
+    check(env);
+    printf("%i ", __LINE__);
 
     arrayConstructor = (*env)->GetMethodID(env, arrayClass, CONSTRUCTOR_METHOD, ARRAY_CONSTRUCTOR_SIGNATURE);
+    check(env);
+    printf("%i ", __LINE__);
 
     jclass localConsumerClass = (*env)->FindClass(env, CONSUMER_CLASS_NAME);
+    check(env);
+    printf("%i ", __LINE__);
 
     consumerApply = (*env)->GetMethodID(env, localConsumerClass, CONSUMER_APPLY, CONSUMER_APPLY_SIGNATURE);
+    check(env);
+    printf("%i ", __LINE__);
 
     jclass localIndexValuePairConsumerClass = (*env)->FindClass(env, INDEX_VALUE_PAIR_CONSUMER_CLASS_NAME);
+    check(env);
+    printf("%i ", __LINE__);
 
     indexValuePairConsumerApply = (*env)->GetMethodID(env, localIndexValuePairConsumerClass, CONSUMER_APPLY, INDEX_VALUE_PAIR_CONSUMER_APPLY_SIGNATURE);
+    check(env);
+    printf("%i ", __LINE__);
 
     hashMap = hashmap_new();
+    printf("%i ", __LINE__);
 
     return JNI_VERSION;
 }
 
-JAVA_TYPE* getAddress(JNIEnv* env, jobject instance) {
-    struct hashmap_node* jObjectNode = hashmap_get(hashMap, &instance);
+jlong getSize(JNIEnv* env, jobject instance) {
+    //struct hashmap_node* jObjectNode = hashmap_get(hashMap, &instance);
 
-    return jObjectNode->address;
+    // return jObjectNode->size;
+
+    return (*env)->GetLongField(env, instance, sizeField);
 }
 
-jlong getSize(JNIEnv* env, jobject instance) {
-    struct hashmap_node* jObjectNode = hashmap_get(hashMap, &instance);
+JAVA_TYPE* getAddress(JNIEnv* env, jobject instance) {
+    //struct hashmap_node* jObjectNode = hashmap_get(hashMap, &instance);
 
-    return jObjectNode->size;
+    // return jObjectNode->address;
+
+    return (JAVA_TYPE*) (*env)->GetLongField(env, instance, addressField);
 }
 
 
@@ -145,7 +184,7 @@ JNIEXPORT void JNICALL JNI_METHOD(close)(JNIEnv* env, jobject instance) {
 JNIEXPORT ARRAY(JAVA_TYPE) JNICALL JNI_METHOD(toJavaArray)(JNIEnv* env, jobject instance) {
     jlong size = getSize(env, instance);
 
-    if (size > 1 << (8 * sizeof(JAVA_TYPE) - 1)) {
+    if (size > 1LL << (8 * sizeof(JAVA_TYPE) - 1)) {
         return NULL;
     }
 
@@ -176,28 +215,42 @@ JNIEXPORT void JNICALL JNI_METHOD(intoJavaArray)(JNIEnv* env, jobject instance, 
     (*env)->RELEASE_ARRAY_ELEMENTS(TYPE)(env, javaArray, javaArrayValues, 0);
 }
 
-JNIEXPORT jobject JNICALL JNI_METHOD(create)(JNIEnv* env, jclass arrayClass, jlong size) {
+JNIEXPORT jlong JNICALL JNI_METHOD(malloc)(JNIEnv* env, jclass arrayClass, jlong size) {
+      printf("Malloc 1\n");
+    printf("Malloc 2\n");
+
   JAVA_TYPE* address = malloc(sizeof(JAVA_TYPE) * size);
+    printf("Malloc 3\n");
 
-  jobject localInstance = (*env)->NewObject(env, arrayClass, arrayConstructor, size);
-  jobject globalInstance = (*env)->NewGlobalRef(env, localInstance);
+  // hashmap_put(hashMap, &arrayInstance, address, size);
 
-  hashmap_put(hashMap, &globalInstance, address, size);
-
-  return globalInstance;
+  return (jlong) address;
 }
 
 JNIEXPORT jobject JNICALL JNI_METHOD(fromJavaArray)(JNIEnv* env, jclass arrayClass, ARRAY(JAVA_TYPE) javaArray) {
+     printf("from 0\n");
     jsize size = (*env)->GetArrayLength(env, javaArray);
+    printf("from 1\n");
+    jobject instance = (*env)->NewObject(env, arrayClass, arrayConstructor, size);
 
-    jobject instance = JNI_METHOD(create)(env, arrayClass, size);
+    printf("from 2\n");
 
     JAVA_TYPE* javaArrayValues = (*env)->GET_ARRAY_ELEMENTS(TYPE)(env, javaArray, 0);
+        printf("from 3\n");
+
     JAVA_TYPE* address = getAddress(env, instance);
 
+    printf("from 4\n");
+
+    for (int i = 0; i < size; i++) {
+        printf("%d\n", address[i]);
+    }
+
     memcpy(address, javaArrayValues, sizeof(JAVA_TYPE) * size);
+    printf("from 5\n");
 
     (*env)->RELEASE_ARRAY_ELEMENTS(TYPE)(env, javaArray, javaArrayValues, 0);
+    printf("from 6\n");
 
     return instance;
 }
@@ -219,7 +272,7 @@ JNIEXPORT jboolean JNI_METHOD(equals)(JNIEnv* env, jobject instance, jobject oth
     return address == otherAddress;
 }
 
-#define MAX_UNSIGNED_VALUE(TYPE) (1 << (sizeof(TYPE) * 8 - 1))
+#define MAX_UNSIGNED_VALUE(TYPE) (1LL << (sizeof(TYPE) * 8 - 1))
 
 JNIEXPORT jint JNICALL JNI_METHOD(hashCode)(JNIEnv* env, jobject instance) {
     uintptr_t address = (uintptr_t) getAddress(env, instance);
