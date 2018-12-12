@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#define DEBUG 1
+
 #define ADDRESS_FIELD "address"
 #define SIZE_FIELD "size"
 
@@ -18,6 +20,7 @@
 
 #define JAVA_PACKAGE "me/theeninja/nativearrays/core/"
 
+#define SUPER_ARRAY_CLASS_NAME JAVA_PACKAGE "Array"
 #define ARRAY_CLASS_NAME JAVA_PACKAGE STRING(TYPE) "Array"
 
 #if SPECIALIZED_JAVA_CONSUMER
@@ -79,6 +82,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
     printf("%i ", __LINE__);
 
+    jclass localArraySuperClass = (*env)->FindClass(env, SUPER_ARRAY_CLASS_NAME);
     jclass localArrayClass = (*env)->FindClass(env, ARRAY_CLASS_NAME);
     printf("%i ", __LINE__);
 
@@ -87,11 +91,11 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     arrayClass = (*env)->NewGlobalRef(env, localArrayClass);
     printf("%i ", __LINE__);
 
-    addressField = (*env)->GetFieldID(env, arrayClass, ADDRESS_FIELD, LONG);
+    addressField = (*env)->GetFieldID(env, localArraySuperClass, ADDRESS_FIELD, LONG);
     check(env);
     printf("%i ", __LINE__);
 
-    sizeField = (*env)->GetFieldID(env, arrayClass, SIZE_FIELD, LONG);
+    sizeField = (*env)->GetFieldID(env, localArraySuperClass, SIZE_FIELD, LONG);
     check(env);
     printf("%i ", __LINE__);
 
@@ -121,12 +125,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     return JNI_VERSION;
 }
 
-jlong getSize(JNIEnv* env, jobject instance) {
+uint_fast64_t getSize(JNIEnv* env, jobject instance) {
     //struct hashmap_node* jObjectNode = hashmap_get(hashMap, &instance);
 
     // return jObjectNode->size;
 
-    return (*env)->GetLongField(env, instance, sizeField);
+    return (uint_fast64_t) (*env)->GetLongField(env, instance, sizeField);
 }
 
 JAVA_TYPE* getAddress(JNIEnv* env, jobject instance) {
@@ -215,20 +219,26 @@ JNIEXPORT void JNICALL JNI_METHOD(intoJavaArray)(JNIEnv* env, jobject instance, 
     (*env)->RELEASE_ARRAY_ELEMENTS(TYPE)(env, javaArray, javaArrayValues, 0);
 }
 
-JNIEXPORT jlong JNICALL JNI_METHOD(malloc)(JNIEnv* env, jclass arrayClass, jlong size) {
-      printf("Malloc 1\n");
+JNIEXPORT jlong JNICALL JNI_METHOD(malloc)(JNIEnv* env, jobject arrayInstance) {
+    printf("Malloc 1\n");
     printf("Malloc 2\n");
 
-  JAVA_TYPE* address = malloc(sizeof(JAVA_TYPE) * size);
+    uint_fast64_t size = getSize(env, arrayInstance);
+
+    printf("Size %lld\n", size);
+
+    JAVA_TYPE* address = malloc(sizeof(JAVA_TYPE) * size);
     printf("Malloc 3\n");
+
+    printf("Allocated address %p\n", address);
 
   // hashmap_put(hashMap, &arrayInstance, address, size);
 
-  return (jlong) address;
+    return (jlong) address;
 }
 
 JNIEXPORT jobject JNICALL JNI_METHOD(fromJavaArray)(JNIEnv* env, jclass arrayClass, ARRAY(JAVA_TYPE) javaArray) {
-     printf("from 0\n");
+    printf("from 0\n");
     jsize size = (*env)->GetArrayLength(env, javaArray);
     printf("from 1\n");
     jobject instance = (*env)->NewObject(env, arrayClass, arrayConstructor, size);
@@ -240,11 +250,18 @@ JNIEXPORT jobject JNICALL JNI_METHOD(fromJavaArray)(JNIEnv* env, jclass arrayCla
 
     JAVA_TYPE* address = getAddress(env, instance);
 
+    printf("Holla\n");
+    printf("%p\n", address);
     printf("from 4\n");
 
-    for (int i = 0; i < size; i++) {
-        printf("%d\n", address[i]);
-    }
+    #if DEBUG
+        for (jlong i = 0; i < size; i++) {
+            printf("1\n");
+            // printf(JAVA_TYPE_FORMAT_SPECIFIER "\n", address[i]);
+        }
+    #endif
+
+    printf("out of loop\n");
 
     memcpy(address, javaArrayValues, sizeof(JAVA_TYPE) * size);
     printf("from 5\n");
@@ -299,7 +316,7 @@ JNIEXPORT jint JNICALL JNI_METHOD(hashCode)(JNIEnv* env, jobject instance) {
 #define GET_REQUIRED_LENGTH(arrayLength) ((arrayLength) * (MAX_JAVA_TYPE_LENGTH) + (GET_SEPARATOR_LENGTH(arrayLength)) + (BRACKETS_LENGTH) + (NULL_TERMINATOR_LENGTH))
 
 JNIEXPORT jstring JNICALL JNI_METHOD(toString)(JNIEnv* env, jobject instance) {
-    jlong size = getSize(env, instance);
+    uint_fast64_t size = getSize(env, instance);
 
     const JAVA_TYPE requiredLength = GET_REQUIRED_LENGTH(size); // maximum size of jstring is JAVA_TYPE
 
@@ -310,7 +327,7 @@ JNIEXPORT jstring JNICALL JNI_METHOD(toString)(JNIEnv* env, jobject instance) {
 
     strcat(string, ARRAY_START);
 
-    for (jlong index = 0; index < size; index++) {
+    for (uint_fast64_t index = 0; index < size; index++) {
         const JAVA_TYPE value = address[index];
 
         // + 1 is for the null byte
@@ -335,21 +352,23 @@ JNIEXPORT jstring JNICALL JNI_METHOD(toString)(JNIEnv* env, jobject instance) {
 #define CONSUME_METHOD_NAME "apply"
 
 JNIEXPORT void JNICALL JNI_METHOD(forEachIndexValuePair)(JNIEnv* env, jobject instance, jobject indexValuePairConsumer) {
-    jlong size = getSize(env, instance);
+    printf("a\n");
+    uint_fast64_t size = getSize(env, instance);
     JAVA_TYPE* address = getAddress(env, instance);
-
-    for (jlong index = 0; index < size; index++) {
+    printf("b\n");
+    for (uint_fast64_t index = 0; index < size; index++) {
         const JAVA_TYPE value = address[index];
-
+        printf("c\n");
         (*env)->CallVoidMethod(env, indexValuePairConsumer, indexValuePairConsumerApply, index, value);
     }
+    printf("d\n");
 }
 
 JNIEXPORT void JNICALL JNI_METHOD(forEachValue)(JNIEnv* env, jobject instance, jobject consumer) {
-    jlong size = getSize(env, instance);
+    uint_fast64_t size = getSize(env, instance);
     JAVA_TYPE* address = getAddress(env, instance);
 
-    for (jlong index = 0; index < size; index++) {
+    for (uint_fast64_t index = 0; index < size; index++) {
         const JAVA_TYPE value = address[index];
 
         (*env)->CallVoidMethod(env, consumer, indexValuePairConsumerApply, value);
@@ -357,7 +376,7 @@ JNIEXPORT void JNICALL JNI_METHOD(forEachValue)(JNIEnv* env, jobject instance, j
 }
 
 JNIEXPORT jobject JNICALL JNI_METHOD(copy)(JNIEnv* env, jobject instance) {
-    jlong size = getSize(env, instance);
+    uint_fast64_t size = getSize(env, instance);
 
     jobject other = (*env)->NewObject(env, arrayClass, arrayConstructor, size);
 
@@ -379,9 +398,9 @@ JNIEXPORT void JNICALL JNI_METHOD(fill)(JNIEnv* env, jobject instance, JAVA_TYPE
 JNIEXPORT jlong JNICALL JNI_METHOD(searchForwards)(JNIEnv* env, jobject instance, JAVA_TYPE requestedValue) {
 
     JAVA_TYPE* address = getAddress(env, instance);
-    jlong size = getSize(env, instance);
+    uint_fast64_t size = getSize(env, instance);
 
-    for (jlong index = 0; index < size; index++) {
+    for (uint_fast64_t index = 0; index < size; index++) {
         const jlong value = address[index];
 
         if (requestedValue == value) {
@@ -395,9 +414,9 @@ JNIEXPORT jlong JNICALL JNI_METHOD(searchForwards)(JNIEnv* env, jobject instance
 JNIEXPORT jlong JNICALL JNI_METHOD(searchBackwards)(JNIEnv* env, jobject instance, JAVA_TYPE requestedValue) {
 
     JAVA_TYPE* address = getAddress(env, instance);
-    jlong size = getSize(env, instance);
+    uint_fast64_t size = getSize(env, instance);
 
-    for (jlong index = size - 1; index >= 0; index--) {
+    for (uint_fast64_t index = size - 1; index >= 0; index--) {
         const jlong value = address[index];
 
         if (requestedValue == value) {
@@ -410,10 +429,10 @@ JNIEXPORT jlong JNICALL JNI_METHOD(searchBackwards)(JNIEnv* env, jobject instanc
 
 JNIEXPORT jlong JNICALL JNI_METHOD(count)(JNIEnv* env, jobject instance, JAVA_TYPE requestedValue) {
     JAVA_TYPE* address = getAddress(env, instance);
-    jlong size = getSize(env, instance);
-    jlong count = 0;
+    uint_fast64_t size = getSize(env, instance);
+    uint_fast64_t count = 0;
 
-    for (jlong index = 0; index < size; index++) {
+    for (uint_fast64_t index = 0; index < size; index++) {
         const JAVA_TYPE value = address[index];
 
         if (requestedValue == value) {
@@ -421,5 +440,5 @@ JNIEXPORT jlong JNICALL JNI_METHOD(count)(JNIEnv* env, jobject instance, JAVA_TY
         }
     }
 
-    return count;
+    return (jlong) count;
 }

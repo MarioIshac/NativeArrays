@@ -13,6 +13,10 @@ public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoubleP
         super(size);
     }
 
+    public DoubleArray(String size) {
+        this(Long.parseUnsignedLong(size));
+    }
+
     public native int get(final long index);
     public native void set(final long index, final double value);
 
@@ -27,12 +31,12 @@ public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoubleP
         return searchForwards(value) != NOT_FOUND;
     }
 
-    public static native DoubleArray fromJavaArray(final double[] javaArray);
+    public static native DoubleArray fromJavaArray(final double... javaArray);
 
     public native void fill(final double value);
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     @Override
     public native void sort();
@@ -51,7 +55,6 @@ public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoubleP
 
     @Override
     public native DoubleArray copy();
-
 
     public static native void unload();
 

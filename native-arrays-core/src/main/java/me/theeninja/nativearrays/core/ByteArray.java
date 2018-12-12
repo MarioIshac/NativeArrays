@@ -5,14 +5,16 @@ public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsu
 
     static {
         Array.getLibraryLoader(ByteArray.class).run();
+
+        int a = Integer.parseUnsignedInt("12");
     }
 
-    ByteArray(long size) {
+    public ByteArray(long size) {
         super(size);
     }
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     public native byte get(final long index);
     public native void set(final long index, final byte value);
@@ -26,7 +28,7 @@ public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsu
         return searchForwards(value) != Array.NOT_FOUND;
     }
 
-    public static native ByteArray fromJavaArray(final byte[] javaArray);
+    public static native ByteArray fromJavaArray(final byte... javaArray);
 
     public native void fill(final byte value);
 

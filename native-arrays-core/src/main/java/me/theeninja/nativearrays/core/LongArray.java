@@ -9,11 +9,15 @@ public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsu
         Array.getLibraryLoader(LongArray.class).run();
     }
 
-    LongArray(long size) {
+    public LongArray(long size) {
         super(size);
     }
 
-    public static native LongArray fromJavaArray(final long[] javaArray);
+    public LongArray(String size) {
+        this(Long.parseUnsignedLong(size));
+    }
+
+    public static native LongArray fromJavaArray(final long... javaArray);
 
     public native int get(final long index);
     public native void set(final long index, final long value);
@@ -34,7 +38,7 @@ public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsu
     public static native void unload();
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     @Override
     public native void sort();

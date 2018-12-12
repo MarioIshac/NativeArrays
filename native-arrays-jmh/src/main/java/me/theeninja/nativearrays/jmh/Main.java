@@ -8,9 +8,16 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 public class Main {
     public static void main(final String[] args) throws RunnerException {
-        IntArray intArray = IntArray.fromJavaArray(new int[] {
-                1, 2, 3
+        IntArray intArray = IntArray.fromJavaArray(3, 6, 7);
+
+        System.out.println("Printing array");
+        intArray.forEachIndexValuePair((index, value) -> {
+            System.out.println(index);
+            System.out.println(value);
         });
+
+        System.out.println("Printing array directly");
+        System.out.println(intArray);
 
         /* final Options opt = new OptionsBuilder()
             .include(IntArrayBenchmark.class.getSimpleName())

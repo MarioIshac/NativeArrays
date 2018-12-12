@@ -11,11 +11,15 @@ public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairC
         Array.getLibraryLoader(ShortArray.class).run();
     }
 
-    ShortArray(long size) {
+    private ShortArray(long size) {
         super(size);
     }
 
-    public static native ShortArray fromJavaArray(final short[] javaArray);
+    public ShortArray(String size) {
+        this(Long.parseUnsignedLong(size));
+    }
+
+    public static native ShortArray fromJavaArray(final short... javaArray);
 
     public native int get(final long index);
     public native void set(final long index, final short value);
@@ -36,7 +40,7 @@ public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairC
     public static native void unload();
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     @Override
     native public void sort();

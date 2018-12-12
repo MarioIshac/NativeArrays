@@ -19,7 +19,11 @@ public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer,
         super(size);
     }
 
-    public static native IntArray fromJavaArray(final int[] javaArray);
+    public IntArray(String size) {
+        this(Long.parseUnsignedLong(size));
+    }
+
+    public static native IntArray fromJavaArray(final int... javaArray);
 
     public native int get(final long index);
     public native void set(final long index, final int value);
@@ -38,7 +42,7 @@ public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer,
     public static native void unload();
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     @Override
     public native void sort();

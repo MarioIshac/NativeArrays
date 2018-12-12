@@ -8,11 +8,15 @@ public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairC
         Array.getLibraryLoader(FloatArray.class).run();
     }
 
-    FloatArray(long size) {
+    public FloatArray(String size) {
+        this(Long.parseUnsignedLong(size));
+    }
+
+    public FloatArray(long size) {
         super(size);
     }
 
-    public static native FloatArray fromJavaArray(final float[] javaArray);
+    public static native FloatArray fromJavaArray(final float... javaArray);
 
     public native int get(final long index);
     public native void set(final long index, final float value);
@@ -31,7 +35,7 @@ public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairC
     public static native void unload();
 
     @Override
-    native long malloc(long size);
+    native long malloc();
 
     @Override
     public native void sort();
