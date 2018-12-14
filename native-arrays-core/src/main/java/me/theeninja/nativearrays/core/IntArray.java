@@ -21,6 +21,12 @@ public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer,
 
     public IntArray(String size) {
         this(Long.parseUnsignedLong(size));
+
+        IndexIntPairConsumer c = (a, b) -> System.out.println(a + " " + b);
+
+        ByteArray byteArray = new ByteArray(5);
+
+        byteArray.forEachIndexValuePair(c::accept);
     }
 
     public static native IntArray fromJavaArray(final int... javaArray);

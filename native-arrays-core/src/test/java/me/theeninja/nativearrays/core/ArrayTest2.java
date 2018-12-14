@@ -1,22 +1,37 @@
 package me.theeninja.nativearrays.core;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 abstract class ArrayTest<T extends Array<T, TVC, TIVC, TA>, TVC, TIVC, TA, AT extends Number> {
-    abstract T getNativeArray();
+    abstract Object[] getNativeArray();
 
-    abstract ArrayGetter<T, AT> getNativeArrayGetter();
-    abstract ArraySetter<T, AT> getNativeArraySetter();
+    abstract Class<?> getPrimitiveClass();
 
     abstract AT getTestValue();
     abstract long getTestIndex();
 
     private static final int INT_ARRAY_SIZE = 3;
+
+    private final Method getMethod;
+    private final Method setMethod;
+    private final Method searchForwardsMethod;
+    private final Method searchBackwardsMethod;
+    private final Method countMethod;
+    private final Method containsMethod;
+    private final Method equalsMethod;
+    private final Method sortMethod;
+    private final Method fillMethod;
+    private final Method
+
+    @BeforeAll
+    void
 
     @Test
     void testGetAndSet() {

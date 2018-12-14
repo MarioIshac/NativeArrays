@@ -80,8 +80,19 @@ class IntArrayTest {
         assertTrue(areEqual);
     }
 
+    private static final int FILL_VALUE = 3;
+
     @Test
     void testFill() {
+        IntArray intArray = IntArray.fromJavaArray(1, 2, 3);
+
+        intArray.fill(FILL_VALUE);
+
+        for (int index = 0; index < intArray.getSize(); index++) {
+            final int observedValue = intArray.get(index);
+
+            assertEquals(FILL_VALUE, observedValue);
+        }
     }
 
     @Test
