@@ -1,9 +1,8 @@
 package me.theeninja.nativearrays.core;
 
-public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairConsumer, float[]> {
-    // These two instance fields are accessed within JNI
-    private static final String LIBRARY_NAME = FloatArray.class.getSimpleName();
+import java.util.function.DoubleBinaryOperator;
 
+public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairConsumer, FloatUnaryOperator, FloatBinaryOperator, FloatPredicate, FloatComparator, float[]> {
     static {
         Array.getLibraryLoader(FloatArray.class).run();
     }
@@ -15,6 +14,18 @@ public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairC
     public FloatArray(long size) {
         super(size);
     }
+
+    @Override
+    public native FloatArray map(FloatUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(FloatUnaryOperator mapper);
+
+    @Override
+    public native FloatArray filter(FloatPredicate predicate);
+
+    @Override
+    public native int filterLocally(FloatPredicate predicate);
 
     public static native FloatArray fromJavaArray(final float... javaArray);
 
@@ -37,8 +48,15 @@ public class FloatArray extends Array<FloatArray, FloatConsumer, IndexFloatPairC
     @Override
     native long malloc();
 
+    public native float reduce(FloatBinaryOperator reducer);
+
     @Override
     public native void sort();
+
+    @Override
+    public void sort(FloatComparator comparator) {
+
+    }
 
     @Override
     public native float[] toJavaArray();

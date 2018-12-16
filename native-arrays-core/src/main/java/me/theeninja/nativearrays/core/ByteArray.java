@@ -1,8 +1,6 @@
 package me.theeninja.nativearrays.core;
 
-public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsumer, byte[]> implements AutoCloseable {
-    private static final String LIBRARY_NAME = ByteArray.class.getSimpleName();
-
+public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsumer, ByteUnaryOperator, ByteBinaryOperator, BytePredicate, ByteComparator, byte[]> implements AutoCloseable {
     static {
         Array.getLibraryLoader(ByteArray.class).run();
 
@@ -14,7 +12,21 @@ public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsu
     }
 
     @Override
+    public native ByteArray map(ByteUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(ByteUnaryOperator mapper);
+
+    @Override
+    public native ByteArray filter(BytePredicate predicate);
+
+    @Override
+    public native int filterLocally(BytePredicate predicate);
+
+    @Override
     native long malloc();
+
+    public native byte reduce(ByteBinaryOperator reducer);
 
     public native byte get(final long index);
     public native void set(final long index, final byte value);
@@ -48,6 +60,9 @@ public class ByteArray extends Array<ByteArray, ByteConsumer, IndexBytePairConsu
 
     @Override
     public native void sort();
+
+    @Override
+    public native void sort(ByteComparator comparator);
 
     @Override
     public native byte[] toJavaArray();

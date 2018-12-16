@@ -1,12 +1,8 @@
 package me.theeninja.nativearrays.core;
 
-public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairConsumer, short[]> {
-    // These two instance fields are accessed within JNI
-    private final long address = 0;
-    private final long size = -1;
+import java.util.function.DoubleBinaryOperator;
 
-    private static final String LIBRARY_NAME = ShortArray.class.getSimpleName();
-
+public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairConsumer, ShortUnaryOperator, ShortBinaryOperator, ShortPredicate, ShortComparator, short[]> {
     static {
         Array.getLibraryLoader(ShortArray.class).run();
     }
@@ -14,6 +10,18 @@ public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairC
     private ShortArray(long size) {
         super(size);
     }
+
+    @Override
+    public native ShortArray map(ShortUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(ShortUnaryOperator mapper);
+
+    @Override
+    public native int filterLocally(ShortPredicate predicate);
+
+    @Override
+    public native ShortArray filter(ShortPredicate predicate);
 
     public ShortArray(String size) {
         this(Long.parseUnsignedLong(size));
@@ -39,11 +47,16 @@ public class ShortArray extends Array<ShortArray, ShortConsumer, IndexShortPairC
 
     public static native void unload();
 
+    public native short reduce(ShortBinaryOperator reducer);
+
     @Override
     native long malloc();
 
     @Override
     native public void sort();
+
+    @Override
+    public native void sort(ShortComparator comparator);
 
     @Override
     public native short[] toJavaArray();

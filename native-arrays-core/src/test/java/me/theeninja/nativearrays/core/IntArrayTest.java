@@ -4,10 +4,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.beans.IntrospectionException;
+import java.util.function.IntBinaryOperator;
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IntArrayTest {
+public class IntArrayTest {
     private final IntArray intArray = IntArray.fromJavaArray(1, 0, 1);
 
     private static final int INT_ARRAY_SIZE = 3;
@@ -16,7 +18,9 @@ class IntArrayTest {
     void testGetAndSet() {
         final int observedValue = getIntArray().get(1);
 
-        assertEquals(observedValue, 2);
+        assertEquals(0, observedValue);
+
+        final IntArray intArray = IntArray.fromJavaArray(1, 2, 3);
     }
 
     @Test
@@ -28,7 +32,7 @@ class IntArrayTest {
 
     @Test
     void testSearchBackwards() {
-        final Object observedIndex = getIntArray().searchBackwards(1);
+        final long observedIndex = getIntArray().searchBackwards(1);
 
         assertEquals(2, observedIndex);
     }
@@ -78,6 +82,7 @@ class IntArrayTest {
         final boolean areEqual = areEqual(getUnsortedIntArray(), getSortedIntArray());
 
         assertTrue(areEqual);
+
     }
 
     private static final int FILL_VALUE = 3;

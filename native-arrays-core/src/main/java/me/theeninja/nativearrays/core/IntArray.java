@@ -1,12 +1,8 @@
 package me.theeninja.nativearrays.core;
 
-import java.util.function.IntConsumer;
+import java.util.function.*;
 
-public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer, int[]> {
-    // These two instance fields are accessed within JNI
-    private final long address = 0;
-    private final long size = -1;
-
+public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer, IntUnaryOperator, IntBinaryOperator, IntPredicate, IntComparator, int[]> {
     private static final String LIBRARY_NAME = IntArray.class.getSimpleName();
 
     static {
@@ -18,6 +14,18 @@ public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer,
     public IntArray(long size) {
         super(size);
     }
+
+    @Override
+    public native IntArray map(IntUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(IntUnaryOperator mapper);
+
+    @Override
+    public native IntArray filter(IntPredicate predicate);
+
+    @Override
+    public native int filterLocally(IntPredicate predicate);
 
     public IntArray(String size) {
         this(Long.parseUnsignedLong(size));
@@ -47,11 +55,16 @@ public class IntArray extends Array<IntArray, IntConsumer, IndexIntPairConsumer,
 
     public static native void unload();
 
+    public native int reduce(IntBinaryOperator reducer);
+
     @Override
     native long malloc();
 
     @Override
     public native void sort();
+
+    @Override
+    public native void sort(IntComparator comparator);
 
     @Override
     public native int[] toJavaArray();

@@ -1,10 +1,8 @@
 package me.theeninja.nativearrays.core;
 
-import java.util.function.LongConsumer;
+import java.util.function.*;
 
-public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsumer, long[]> {
-    private static final String LIBRARY_NAME = LongArray.class.getSimpleName();
-
+public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsumer, LongUnaryOperator, LongBinaryOperator, LongPredicate, LongComparator, long[]> {
     static {
         Array.getLibraryLoader(LongArray.class).run();
     }
@@ -12,6 +10,18 @@ public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsu
     public LongArray(long size) {
         super(size);
     }
+
+    @Override
+    public native LongArray map(LongUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(LongUnaryOperator mapper);
+
+    @Override
+    public native LongArray filter(LongPredicate predicate);
+
+    @Override
+    public native int filterLocally(LongPredicate predicate);
 
     public LongArray(String size) {
         this(Long.parseUnsignedLong(size));
@@ -37,11 +47,16 @@ public class LongArray extends Array<LongArray, LongConsumer, IndexLongPairConsu
 
     public static native void unload();
 
+    public native long reduce(LongBinaryOperator reducer);
+
     @Override
     native long malloc();
 
     @Override
     public native void sort();
+
+    @Override
+    public native void sort(LongComparator comparator);
 
     @Override
     public native long[] toJavaArray();

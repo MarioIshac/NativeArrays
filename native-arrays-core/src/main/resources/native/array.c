@@ -18,20 +18,32 @@
 #define STRING_H(X) #X
 #define STRING(X) STRING_H(X)
 
-#define JAVA_PACKAGE "me/theeninja/nativearrays/core/"
+#define JAVA_EXT_PACKAGE "me/theeninja/nativearrays/core/"
+#define JAVA_INC_PACKAGE "java/util/function"
 
 #define SUPER_ARRAY_CLASS_NAME JAVA_PACKAGE "Array"
 #define ARRAY_CLASS_NAME JAVA_PACKAGE STRING(TYPE) "Array"
 
 #if SPECIALIZED_JAVA_CONSUMER
-#define CONSUMER_CLASS_NAME "java/util/function/" STRING(TYPE) "Consumer"
+#define CONSUMER_CLASS_NAME JAVA_INC_PACKAGE STRING(TYPE) "Consumer"
+#define PREDICATE_CLASS_NAME JAVA_INC_PACKAGE STRING(TYPE) "Predicate"
+#define UNARY_OPERATOR_CLASS_NAME JAVA_INC_PACKAGE STRING(TYPE) "UnaryOperator"
+#define BINARY_OPERATOR_CLASS_NAME JAVA_INC_PACKAGE STRING(TYPE) "BinaryOperator"
 #else
-#define CONSUMER_CLASS_NAME "me/theeninja/nativearrays/core" STRING(TYPE) "Consumer"
+#define CONSUMER_CLASS_NAME JAVA_EXT_PACKAGE STRING(TYPE) "Consumer"
+#define PREDICATE_CLASS_NAME JAVA_EXT_PACKAGE STRING(TYPE) "Predicate"
+#define UNARY_OPERATOR_CLASS_NAME JAVA_EXT_PACKAGE STRING(TYPE) "UnaryOperator"
+#define BINARY_OPERATOR_CLASS_NAME JAVA_EXT_PACKAGE STRING(TYPE) "BinaryOperator"
 #endif
 
-#define INDEX_VALUE_PAIR_CONSUMER_CLASS_NAME JAVA_PACKAGE "Index" STRING(TYPE) "PairConsumer"
+#define INDEX_VALUE_PAIR_CONSUMER_CLASS_NAME JAVA_EXT_PACKAGE "Index" STRING(TYPE) "PairConsumer"
+#define COMPARATOR_CLASS_NAME JAVA_EXT_PACKAGE STRING(TYPE) "Comparator"
 
 #define CONSUMER_APPLY "accept"
+#define PREDICATE_TEST "test"
+#define UNARY_OPERATOR_APPLY_AS_TYPE "applyAs" STRING(TYPE)
+#define BINARY_OPERATOR_APPLY_AS_TYPE UNARY_OPERATOR_APPLY_AS_TYPE
+#define COMPARATOR_COMPARE "compare"
 
 #define VOID "V"
 #define LONG "J"
@@ -56,11 +68,18 @@
  */
 
 jclass arrayClass;
+
 jfieldID addressField;
 jfieldID sizeField;
+
 jmethodID arrayConstructor;
+
 jmethodID consumerApply;
 jmethodID indexValuePairConsumerApply;
+jmethodID comparatorCompare;
+jmethodID predicateTest;
+jmethodID unaryOperatorApplyAsType;
+jmethodID binaryOperatorApplyAsType;
 
 struct hashmap* hashMap;
 
@@ -75,52 +94,40 @@ void check(JNIEnv* env) {
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     JNIEnv* env;
     void** envAddress = (void **) &env;
-    printf("%i ", __LINE__);
 
     if ((*vm)->GetEnv(vm, envAddress, JNI_VERSION) != JNI_OK) {
         return JNI_ERR;
     }
-    printf("%i ", __LINE__);
 
     jclass localArraySuperClass = (*env)->FindClass(env, SUPER_ARRAY_CLASS_NAME);
     jclass localArrayClass = (*env)->FindClass(env, ARRAY_CLASS_NAME);
-    printf("%i ", __LINE__);
-
-    check(env);
 
     arrayClass = (*env)->NewGlobalRef(env, localArrayClass);
-    printf("%i ", __LINE__);
 
     addressField = (*env)->GetFieldID(env, localArraySuperClass, ADDRESS_FIELD, LONG);
-    check(env);
-    printf("%i ", __LINE__);
-
     sizeField = (*env)->GetFieldID(env, localArraySuperClass, SIZE_FIELD, LONG);
-    check(env);
-    printf("%i ", __LINE__);
 
     arrayConstructor = (*env)->GetMethodID(env, arrayClass, CONSTRUCTOR_METHOD, ARRAY_CONSTRUCTOR_SIGNATURE);
-    check(env);
-    printf("%i ", __LINE__);
 
     jclass localConsumerClass = (*env)->FindClass(env, CONSUMER_CLASS_NAME);
-    check(env);
-    printf("%i ", __LINE__);
-
     consumerApply = (*env)->GetMethodID(env, localConsumerClass, CONSUMER_APPLY, CONSUMER_APPLY_SIGNATURE);
-    check(env);
-    printf("%i ", __LINE__);
 
     jclass localIndexValuePairConsumerClass = (*env)->FindClass(env, INDEX_VALUE_PAIR_CONSUMER_CLASS_NAME);
-    check(env);
-    printf("%i ", __LINE__);
-
     indexValuePairConsumerApply = (*env)->GetMethodID(env, localIndexValuePairConsumerClass, CONSUMER_APPLY, INDEX_VALUE_PAIR_CONSUMER_APPLY_SIGNATURE);
-    check(env);
-    printf("%i ", __LINE__);
+
+    jclass localComparatorClass = (*env)->FindClass(env, COMPARATOR_CLASS_NAME);
+    comparatorCompare = (*env)->GetMethodID(env, localComparatorClass, COMPARATOR_COMPARE);
+
+    jclass localPredicateClass = (*env)->FindClass(env, PREDICATE_CLASS_NAME);
+    predicateTest = (*env)->GetMethodID(env, localPredicateClass, PREDICATE_TEST);
+
+    jclass localUnaryOperatorClass = (*env)->FindClass(env, UNARY_OPERATOR_CLASS_NAME);
+    unaryOperatorApplyAsType = (*env)->GetMethodID(env, localUnaryOperatorClass, UNARY_OPERATOR_APPLY_AS_TYPE);
+
+    jclass localBinaryOperatorClass = (*env)->FindClass(env, BINARY_OPERATOR_APPLY_AS_TYPE);
+    binaryOperatorApplyAsType = (*env)->GetMethodID(env, localBinaryOperatorClass, BINARY_OPERATOR_APPLY_AS_TYPE);
 
     hashMap = hashmap_new();
-    printf("%i ", __LINE__);
 
     return JNI_VERSION;
 }
@@ -362,6 +369,46 @@ JNIEXPORT void JNICALL JNI_METHOD(forEachIndexValuePair)(JNIEnv* env, jobject in
         (*env)->CallVoidMethod(env, indexValuePairConsumer, indexValuePairConsumerApply, index, value);
     }
     printf("d\n");
+}
+
+#define CALL_TYPE_METHOD Call##Type##Method
+
+JNIEXPORT jobject JNICALL JNI_METHOD(map)(JNIEnv* env, jobject oldArray, jobject mapper) {
+    const uint_fast64_t size = getSize(env, oldArray);
+    JAVA_TYPE* oldAddress = getAddress(env, oldArray);
+
+    jobject newArray = (*env)->NewObject(env, arrayClass, size);
+    JAVA_TYPE* newAddress = getAddress(env, newArray);
+
+    for (uint_fast64_t index = 0; index < size; index++) {
+        const JAVA_TYPE oldValue = oldAddress[index];
+        const JAVA_TYPE newValue = (*env)->CALL_TYPE_METHOD(env, mapper, unaryOperatorApplyAsType, oldValue);
+
+        newAddress[index] = newValue;
+    }
+
+    return newArray;
+}
+
+JNIEXPORT void JNICALL JNI_METHOD(mapLocally)(JNIEnv* env, jobject array, jobject mapper) {
+    uint_fast64_t size = getSize(env, array);
+    JAVA_TYPE* address = getAddress(env, array);
+
+    for (uint_fast64_t index = 0; index < size; index++) {
+        const JAVA_TYPE oldValue = address[index];
+        const JAVA_TYPE newValue = (*env)->CALL_TYPE_METHOD(env, mapper, unaryOperatorApplyAsType, oldValue);
+
+        address[index] = newValue;
+    }
+}
+
+JNIEXPORT jobject JNICALL JNI_METHOD(filter)(JNIEnv* jobject array, jobject filterer) {
+
+}
+
+
+JNIEXPORT jobject JNICALL JNI_METHOD(filterLocally)(JNIEnv* jobject array, jobject filterer) {
+
 }
 
 JNIEXPORT void JNICALL JNI_METHOD(forEachValue)(JNIEnv* env, jobject instance, jobject consumer) {

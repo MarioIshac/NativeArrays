@@ -1,10 +1,11 @@
 package me.theeninja.nativearrays.core;
 
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 
-public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoublePairConsumer, double[]> {
-    private static final String LIBRARY_NAME = DoubleArray.class.getSimpleName();
-
+public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoublePairConsumer, DoubleUnaryOperator, DoubleBinaryOperator, DoublePredicate, DoubleComparator, double[]> {
     static {
         Array.getLibraryLoader(DoubleArray.class).run();
     }
@@ -13,9 +14,23 @@ public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoubleP
         super(size);
     }
 
+    @Override
+    public native DoubleArray map(DoubleUnaryOperator mapper);
+
+    @Override
+    public native void mapLocally(DoubleUnaryOperator mapper);
+
+    @Override
+    public native DoubleArray filter(DoublePredicate predicate);
+
+    @Override
+    public native int filterLocally(DoublePredicate predicate);
+
     public DoubleArray(String size) {
         this(Long.parseUnsignedLong(size));
     }
+
+    public native double reduce(DoubleUnaryOperator reducer);
 
     public native int get(final long index);
     public native void set(final long index, final double value);
@@ -40,6 +55,9 @@ public class DoubleArray extends Array<DoubleArray, DoubleConsumer, IndexDoubleP
 
     @Override
     public native void sort();
+
+    @Override
+    public native void sort(DoubleComparator comparator);
 
     @Override
     public native double[] toJavaArray();

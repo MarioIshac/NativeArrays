@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  * @param <TIVC> The primitive specialization fot the index-value-pair consumer.
  * @param <TA> The correlated java array object (e.g {@code int[]} for {@code IntArray} and {@code float[]} for {@code FloatArray}
  */
-public abstract class Array<T extends Array<T, TVC, TIVC, TA>, TVC, TIVC, TA> implements AutoCloseable {
+public abstract class Array<T extends Array<T, TVC, TIVC, TVU, TVB, TVP, TVS, TA>, TVC, TIVC, TVU, TVB, TVP, TVS, TA> implements AutoCloseable {
     /**
      * The "index" which is returned in the case that a requested-for value is not found in a search.
      */
@@ -51,6 +51,19 @@ public abstract class Array<T extends Array<T, TVC, TIVC, TA>, TVC, TIVC, TA> im
         this.address = malloc();
     }
 
+    public abstract T map(TVU mapper);
+    public abstract void mapLocally(TVU mapper);
+
+    @SafeVarargs
+    public final void mapLocally(TVU... mappers) {
+        for (TVU mapper : mappers) {
+            mapLocally(mapper);
+        }
+    }
+
+    public abstract T filter(TVP predicate);
+    public abstract int filterLocally(TVP predicate);
+
     /**
      * Constructs an array with an unsigned size.
      *
@@ -66,6 +79,7 @@ public abstract class Array<T extends Array<T, TVC, TIVC, TA>, TVC, TIVC, TA> im
      * Sorts the internal array using an implementation of merge sort. The sorting is stable.
      */
     public abstract void sort();
+    public abstract void sort(TVS comparator);
 
     /**
      * @return A java array (meaning {@code TYPE[]}) that has the elements of this array copied over. The length of the java array is equivalent to
@@ -119,7 +133,7 @@ public abstract class Array<T extends Array<T, TVC, TIVC, TA>, TVC, TIVC, TA> im
      * @param <T> The array primitive specialization that is being created and consumed.
      * @throws Exception a general exception if thrown when creation of the object fails (indicating an exception occurred internally in the supplier)
      */
-    public static <T extends Array<T, ?, ?, ?>> void tryAndClose(final Supplier<T> arraySupplier, final Consumer<T> arrayConsumer) throws Exception {
+    public static <T extends Array> void tryAndClose(final Supplier<T> arraySupplier, final Consumer<T> arrayConsumer) throws Exception {
         try (final T array = arraySupplier.get()) {
             arrayConsumer.accept(array);
         }
