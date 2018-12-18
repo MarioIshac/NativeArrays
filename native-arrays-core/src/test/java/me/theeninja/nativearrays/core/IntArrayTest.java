@@ -1,16 +1,12 @@
 package me.theeninja.nativearrays.core;
 
-import org.junit.jupiter.api.BeforeAll;
+import me.theeninja.nativearrays.core.array.IntArray;
 import org.junit.jupiter.api.Test;
-
-import java.beans.IntrospectionException;
-import java.util.function.IntBinaryOperator;
-import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntArrayTest {
-    private final IntArray intArray = IntArray.fromJavaArray(1, 0, 1);
+    /* private final IntArray<?, ?> intArray = IntArray.fromJavaArray(1, 0, 1);
 
     private static final int INT_ARRAY_SIZE = 3;
 
@@ -198,7 +194,14 @@ public class IntArrayTest {
         assertFalse(unequalArraysEqual);
     }
 
-    private IntArray getIntArray() {
+    @Test
+    void testToString() {
+        final String representation = getIntArray().toString();
+
+        assertEquals(representation, "[1, 0, 1]");
+    }
+
+    private IntArray<?, ?> getIntArray() {
         return intArray;
     }
 
@@ -220,5 +223,5 @@ public class IntArrayTest {
 
     private IntArray getUnEqualArray() {
         return unEqualArray;
-    }
+    } */
 }

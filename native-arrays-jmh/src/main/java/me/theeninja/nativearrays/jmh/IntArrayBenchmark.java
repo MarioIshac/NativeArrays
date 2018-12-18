@@ -1,10 +1,6 @@
 package me.theeninja.nativearrays.jmh;
 
-import me.theeninja.nativearrays.core.IntArray;
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.runner.RunnerException;
-
-import java.io.IOException;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
 
 public class IntArrayBenchmark {
     private static final int VALUE_TO_COUNT = 0;
@@ -30,7 +26,7 @@ public class IntArrayBenchmark {
 
     // @Benchmark
     public void measureNativeArrayCount(NativeArrayOperation nativeArrayOperation) {
-        try (final IntArray ints = nativeArrayOperation.newValue()) {
+        try (final UnfilteredIntArray ints = nativeArrayOperation.newValue()) {
             final long count = ints.count(VALUE_TO_COUNT);
 
             nativeArrayOperation.setResult(count);

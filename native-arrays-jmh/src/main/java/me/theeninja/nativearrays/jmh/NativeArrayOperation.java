@@ -1,10 +1,11 @@
 package me.theeninja.nativearrays.jmh;
 
-import me.theeninja.nativearrays.core.IntArray;
+import me.theeninja.nativearrays.core.array.IntArray;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
 
-public class NativeArrayOperation extends ArrayOperation<IntArray, Long> {
+public class NativeArrayOperation extends ArrayOperation<UnfilteredIntArray, Long> {
     @Override
-    IntArray newValue() {
-        return new IntArray(ARRAY_LENGTH);
+    UnfilteredIntArray newValue() {
+        return new UnfilteredIntArray(ARRAY_LENGTH);
     }
 }
