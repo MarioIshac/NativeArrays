@@ -1,8 +1,9 @@
 package me.theeninja.nativearrays.core.array;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredFloatArray;
 import me.theeninja.nativearrays.core.collection.FloatCollection;
-import me.theeninja.nativearrays.core.comparator.FloatComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexFloatPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.FloatConsumer;
 import me.theeninja.nativearrays.core.operators.binary.FloatBinaryOperator;
@@ -13,8 +14,22 @@ public abstract class FloatArray<
     FT extends FloatArray<
         FT,
         UT
+    > & FilteredCollection<
+        FloatArray<
+            FT,
+            UT
+        >,
+        FT,
+        UT
     >,
     UT extends FloatArray<
+        FT,
+        UT
+    > & UnfilteredCollection<
+        FloatArray<
+            FT,
+            UT
+        >,
         FT,
         UT
     >
@@ -30,13 +45,13 @@ public abstract class FloatArray<
     FloatUnaryOperator,
     FloatBinaryOperator,
     FloatPredicate,
-    FloatComparator,
     float[]
 > implements FloatCollection<
     FloatArray<
         FT,
         UT
     >,
+    FT,
     UT
 > {
     static {
@@ -59,7 +74,8 @@ public abstract class FloatArray<
     @Override
     public native long searchBackwards(final float value);
 
-    public abstract long count(final float value);
+    @Override
+    public native long count(final float value);
 
     public boolean contains(final float value) {
         return searchForwards(value) != NOT_FOUND;

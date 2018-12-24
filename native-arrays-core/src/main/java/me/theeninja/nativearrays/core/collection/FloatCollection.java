@@ -1,34 +1,48 @@
 package me.theeninja.nativearrays.core.collection;
 
-import me.theeninja.nativearrays.core.comparator.FloatComparator;
-import me.theeninja.nativearrays.core.comparator.IntComparator;
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.consumers.pair.IndexFloatPairConsumer;
-import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.FloatConsumer;
 import me.theeninja.nativearrays.core.operators.binary.FloatBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.FloatUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.FloatPredicate;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.IntConsumer;
-import java.util.function.IntPredicate;
-import java.util.function.IntUnaryOperator;
-
 import static me.theeninja.nativearrays.core.array.Array.NOT_FOUND;
 
 public interface FloatCollection<
     T extends FloatCollection<
-        T, UT
+        T,
+        FT,
+        UT
     >,
-    UT extends T
+    FT extends FloatCollection<
+        T,
+        FT,
+        UT
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends FloatCollection<
+        T,
+        FT,
+        UT
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >
 > extends NativeCollection<
     T,
+    FT,
     UT,
     FloatConsumer,
     IndexFloatPairConsumer,
     FloatUnaryOperator,
+    FloatBinaryOperator,
     FloatPredicate,
-    FloatComparator,
     float[]
 >{
     int get(final long index);

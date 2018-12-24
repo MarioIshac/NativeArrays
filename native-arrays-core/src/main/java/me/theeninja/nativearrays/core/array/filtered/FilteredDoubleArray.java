@@ -1,13 +1,25 @@
 package me.theeninja.nativearrays.core.array.filtered;
 
 import me.theeninja.nativearrays.core.array.DoubleArray;
-import me.theeninja.nativearrays.core.comparator.DoubleComparator;
-import me.theeninja.nativearrays.core.consumers.pair.IndexDoublePairConsumer;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredDoubleArray;
+import me.theeninja.nativearrays.core.consumers.pair.IndexDoublePairConsumer;
 
-import java.util.function.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 
-public class FilteredDoubleArray extends DoubleArray<FilteredDoubleArray, UnfilteredDoubleArray> {
+public class FilteredDoubleArray extends DoubleArray<
+    FilteredDoubleArray,
+    UnfilteredDoubleArray
+> implements FilteredCollection<
+    DoubleArray<
+        FilteredDoubleArray,
+        UnfilteredDoubleArray
+    >,
+    FilteredDoubleArray,
+    UnfilteredDoubleArray
+> {
     public FilteredDoubleArray(long size) {
         super(size);
     }
@@ -28,9 +40,6 @@ public class FilteredDoubleArray extends DoubleArray<FilteredDoubleArray, Unfilt
     public native void set(long index, double value);
 
     @Override
-    public native long count(double value);
-
-    @Override
     public native void fill(double value);
 
     @Override
@@ -43,10 +52,7 @@ public class FilteredDoubleArray extends DoubleArray<FilteredDoubleArray, Unfilt
     public native void iMap(DoubleUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(DoubleComparator comparator);
+    public native void sort(DoubleBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native double[] toJavaArray();
@@ -62,4 +68,7 @@ public class FilteredDoubleArray extends DoubleArray<FilteredDoubleArray, Unfilt
 
     @Override
     public native void copyInto(UnfilteredDoubleArray nativeArray, long offset, long newSize);
+
+    @Override
+    public native UnfilteredDoubleArray asUnfiltered();
 }

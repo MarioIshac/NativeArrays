@@ -1,16 +1,24 @@
 package me.theeninja.nativearrays.core.array.filtered;
 
 import me.theeninja.nativearrays.core.array.FloatArray;
-import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredDoubleArray;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredFloatArray;
-import me.theeninja.nativearrays.core.comparator.FloatComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexFloatPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.FloatConsumer;
 import me.theeninja.nativearrays.core.operators.binary.FloatBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.FloatUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.FloatPredicate;
 
-public class FilteredFloatArray extends FloatArray<FilteredFloatArray, UnfilteredFloatArray> {
+public class FilteredFloatArray extends FloatArray<
+    FilteredFloatArray,
+    UnfilteredFloatArray
+> implements FilteredCollection<
+    FloatArray<
+        FilteredFloatArray,
+        UnfilteredFloatArray
+    >,
+    FilteredFloatArray,
+    UnfilteredFloatArray
+> {
     public FilteredFloatArray(String size) {
         super(size);
     }
@@ -23,9 +31,6 @@ public class FilteredFloatArray extends FloatArray<FilteredFloatArray, Unfiltere
 
     @Override
     public native void set(long index, float value);
-
-    @Override
-    public native long count(float value);
 
     @Override
     public native void fill(float value);
@@ -46,10 +51,7 @@ public class FilteredFloatArray extends FloatArray<FilteredFloatArray, Unfiltere
     public native void iMap(FloatUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(FloatComparator comparator);
+    public native void sort(FloatBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native float[] toJavaArray();
@@ -65,4 +67,7 @@ public class FilteredFloatArray extends FloatArray<FilteredFloatArray, Unfiltere
 
     @Override
     public native void copyInto(UnfilteredFloatArray nativeArray, long offset, long newSize);
+
+    @Override
+    public native UnfilteredFloatArray asUnfiltered();
 }

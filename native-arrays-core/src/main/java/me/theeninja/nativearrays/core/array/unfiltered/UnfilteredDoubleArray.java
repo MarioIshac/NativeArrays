@@ -1,13 +1,25 @@
 package me.theeninja.nativearrays.core.array.unfiltered;
 
 import me.theeninja.nativearrays.core.array.DoubleArray;
-import me.theeninja.nativearrays.core.comparator.DoubleComparator;
 import me.theeninja.nativearrays.core.array.filtered.FilteredDoubleArray;
 import me.theeninja.nativearrays.core.consumers.pair.IndexDoublePairConsumer;
 
-import java.util.function.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 
-public class UnfilteredDoubleArray extends DoubleArray<FilteredDoubleArray, UnfilteredDoubleArray> {
+public class UnfilteredDoubleArray extends DoubleArray<
+    FilteredDoubleArray,
+    UnfilteredDoubleArray
+> implements  UnfilteredCollection<
+    DoubleArray<
+        FilteredDoubleArray,
+        UnfilteredDoubleArray
+    >,
+    FilteredDoubleArray,
+    UnfilteredDoubleArray
+> {
     public UnfilteredDoubleArray(long size) {
         super(size);
     }
@@ -28,9 +40,6 @@ public class UnfilteredDoubleArray extends DoubleArray<FilteredDoubleArray, Unfi
     public native void set(long index, double value);
 
     @Override
-    public native long count(double value);
-
-    @Override
     public native void fill(double value);
 
     @Override
@@ -43,10 +52,7 @@ public class UnfilteredDoubleArray extends DoubleArray<FilteredDoubleArray, Unfi
     public native void iMap(DoubleUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(DoubleComparator comparator);
+    public native void sort(DoubleBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native double[] toJavaArray();

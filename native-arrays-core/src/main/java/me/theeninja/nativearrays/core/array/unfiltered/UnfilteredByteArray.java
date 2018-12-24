@@ -2,16 +2,23 @@ package me.theeninja.nativearrays.core.array.unfiltered;
 
 import me.theeninja.nativearrays.core.array.ByteArray;
 import me.theeninja.nativearrays.core.array.filtered.FilteredByteArray;
-import me.theeninja.nativearrays.core.comparator.ByteComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexBytePairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ByteConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ByteBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.ByteUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.BytePredicate;
 
-import java.util.function.LongBinaryOperator;
-
-public class UnfilteredByteArray extends ByteArray<FilteredByteArray, UnfilteredByteArray> {
+public class UnfilteredByteArray extends ByteArray<
+    FilteredByteArray,
+    UnfilteredByteArray
+> implements UnfilteredCollection<
+    ByteArray<
+        FilteredByteArray,
+        UnfilteredByteArray
+    >,
+    FilteredByteArray,
+    UnfilteredByteArray
+> {
     public UnfilteredByteArray(long size) {
         super(size);
     }
@@ -32,10 +39,7 @@ public class UnfilteredByteArray extends ByteArray<FilteredByteArray, Unfiltered
     public native void iMap(ByteUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(ByteComparator comparator);
+    public native void sort(ByteBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native byte[] toJavaArray();
@@ -57,9 +61,6 @@ public class UnfilteredByteArray extends ByteArray<FilteredByteArray, Unfiltered
 
     @Override
     public native void set(long index, byte value);
-
-    @Override
-    public native long count(byte value);
 
     @Override
     public native void fill(byte value);

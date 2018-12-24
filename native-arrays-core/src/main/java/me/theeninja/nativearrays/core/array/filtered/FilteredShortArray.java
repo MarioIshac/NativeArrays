@@ -1,16 +1,24 @@
 package me.theeninja.nativearrays.core.array.filtered;
 
 import me.theeninja.nativearrays.core.array.ShortArray;
-import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredDoubleArray;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredShortArray;
-import me.theeninja.nativearrays.core.comparator.ShortComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexShortPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ShortConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ShortBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.ShortUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.ShortPredicate;
 
-public class FilteredShortArray extends ShortArray<FilteredShortArray, UnfilteredShortArray> {
+public class FilteredShortArray extends ShortArray<
+    FilteredShortArray,
+    UnfilteredShortArray
+> implements FilteredCollection<
+    ShortArray<
+        FilteredShortArray,
+        UnfilteredShortArray
+    >,
+    FilteredShortArray,
+    UnfilteredShortArray
+> {
     @Override
     public native String toString();
 
@@ -34,13 +42,10 @@ public class FilteredShortArray extends ShortArray<FilteredShortArray, Unfiltere
     public native long searchBackwards(short value);
 
     @Override
-    public native long count(short value);
-
-    @Override
     public native void fill(short value);
 
     @Override
-    public native int reduce(ShortBinaryOperator reducer);
+    public native short reduce(ShortBinaryOperator reducer);
 
     @Override
     public native UnfilteredShortArray rFilter(ShortPredicate predicate);
@@ -52,10 +57,7 @@ public class FilteredShortArray extends ShortArray<FilteredShortArray, Unfiltere
     public native void iMap(ShortUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(ShortComparator comparator);
+    public native void sort(ShortBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native short[] toJavaArray();
@@ -71,4 +73,7 @@ public class FilteredShortArray extends ShortArray<FilteredShortArray, Unfiltere
 
     @Override
     public native void copyInto(UnfilteredShortArray nativeArray, long offset, long newSize);
+
+    @Override
+    public native UnfilteredShortArray asUnfiltered();
 }

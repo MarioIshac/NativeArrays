@@ -1,6 +1,7 @@
 package me.theeninja.nativearrays.core.collection;
 
-import me.theeninja.nativearrays.core.comparator.ByteComparator;
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.consumers.pair.IndexBytePairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ByteConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ByteBinaryOperator;
@@ -11,17 +12,37 @@ import static me.theeninja.nativearrays.core.array.Array.NOT_FOUND;
 
 public interface ByteCollection<
     T extends ByteCollection<
-        T, UT
+        T,
+        FT,
+        UT
     >,
-    UT extends T
+    FT extends ByteCollection<
+        T,
+        FT,
+        UT
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends ByteCollection<
+        T,
+        FT,
+        UT
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >
 > extends NativeCollection<
     T,
+    FT,
     UT,
     ByteConsumer,
     IndexBytePairConsumer,
     ByteUnaryOperator,
+    ByteBinaryOperator,
     BytePredicate,
-    ByteComparator,
     byte[]
 > {
     int get(final long index);

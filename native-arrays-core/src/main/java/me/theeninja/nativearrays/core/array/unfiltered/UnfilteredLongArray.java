@@ -1,16 +1,27 @@
 package me.theeninja.nativearrays.core.array.unfiltered;
 
+import me.theeninja.nativearrays.core.array.LongArray;
+import me.theeninja.nativearrays.core.array.LongArray;
+import me.theeninja.nativearrays.core.array.filtered.FilteredLongArray;
 import me.theeninja.nativearrays.core.array.filtered.FilteredLongArray;
 import me.theeninja.nativearrays.core.consumers.pair.IndexLongPairConsumer;
-import me.theeninja.nativearrays.core.array.LongArray;
-import me.theeninja.nativearrays.core.comparator.LongComparator;
 
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
-public class UnfilteredLongArray extends LongArray<FilteredLongArray, UnfilteredLongArray> {
+public class UnfilteredLongArray extends LongArray<
+    FilteredLongArray,
+    UnfilteredLongArray
+> implements  UnfilteredCollection<
+    LongArray<
+        FilteredLongArray, 
+        UnfilteredLongArray
+    >,
+    FilteredLongArray, 
+    UnfilteredLongArray
+>{
     @Override
     public native FilteredLongArray iFilter(LongPredicate predicate);
 
@@ -28,9 +39,6 @@ public class UnfilteredLongArray extends LongArray<FilteredLongArray, Unfiltered
     public native void set(long index, long value);
 
     @Override
-    public native long count(long value);
-
-    @Override
     public native void fill(long value);
 
     @Override
@@ -46,10 +54,7 @@ public class UnfilteredLongArray extends LongArray<FilteredLongArray, Unfiltered
     public native void iMap(LongUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(LongComparator comparator);
+    public native void sort(LongBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native long[] toJavaArray();

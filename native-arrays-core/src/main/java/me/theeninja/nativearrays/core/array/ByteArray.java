@@ -1,8 +1,9 @@
 package me.theeninja.nativearrays.core.array;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredByteArray;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.collection.ByteCollection;
-import me.theeninja.nativearrays.core.comparator.ByteComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexBytePairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ByteConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ByteBinaryOperator;
@@ -13,15 +14,30 @@ public abstract class ByteArray<
     FT extends ByteArray<
         FT,
         UT
+    > & FilteredCollection<
+        ByteArray<
+            FT,
+            UT
+        >,
+        FT,
+        UT
     >,
     UT extends ByteArray<
+        FT,
+        UT
+    > & UnfilteredCollection<
+        ByteArray<
+            FT,
+            UT
+        >,
         FT,
         UT
     >
 > extends Array<
     ByteArray<
         FT,
-        UT>,
+        UT
+    >,
     FT,
     UT,
     ByteConsumer,
@@ -29,13 +45,13 @@ public abstract class ByteArray<
     ByteUnaryOperator,
     ByteBinaryOperator,
     BytePredicate,
-    ByteComparator,
     byte[]
 > implements AutoCloseable, ByteCollection<
     ByteArray<
         FT,
         UT
     >,
+    FT,
     UT
 > {
     static {
@@ -65,6 +81,9 @@ public abstract class ByteArray<
     public static native UnfilteredByteArray fromJavaArray(final byte... javaArray);
 
     public static native void unload();
+
+    @Override
+    public native long count(byte value);
 
     @Override
     public native UT copy();

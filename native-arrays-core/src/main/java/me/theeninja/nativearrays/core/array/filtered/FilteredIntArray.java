@@ -1,17 +1,26 @@
 package me.theeninja.nativearrays.core.array.filtered;
 
-import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredDoubleArray;
-import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
 import me.theeninja.nativearrays.core.array.IntArray;
-import me.theeninja.nativearrays.core.comparator.IntComparator;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
+import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
 
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
+import java.util.logging.Filter;
 
-public class FilteredIntArray extends IntArray<FilteredIntArray, UnfilteredIntArray> {
+public class FilteredIntArray extends IntArray<
+    FilteredIntArray,
+    UnfilteredIntArray
+> implements FilteredCollection<
+    IntArray<
+        FilteredIntArray,
+        UnfilteredIntArray
+    >,
+    FilteredIntArray,
+    UnfilteredIntArray
+> {
     private final int excludedValue;
 
     FilteredIntArray(long size, long address, int excludedValue) {
@@ -41,9 +50,6 @@ public class FilteredIntArray extends IntArray<FilteredIntArray, UnfilteredIntAr
     public native void set(final long requestedIndex, final int value);
 
     @Override
-    public native void sort();
-
-    @Override
     public native void forEachValue(final IntConsumer filterUnawareConsumer);
 
     @Override
@@ -56,17 +62,10 @@ public class FilteredIntArray extends IntArray<FilteredIntArray, UnfilteredIntAr
     public native void intoJavaArray(final int[] javaArray);
 
     @Override
-    public native void sort(IntComparator comparator);
+    public native void sort(IntBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native int reduce(final IntBinaryOperator filterUnawareReducer);
-
-    @Override
-    public native long count(final int value);
-
-    public boolean isFilterAffected() {
-        return contains(getExcludedValue());
-    }
 
     @Override
     public native boolean contains(final int value);
@@ -109,4 +108,7 @@ public class FilteredIntArray extends IntArray<FilteredIntArray, UnfilteredIntAr
 
         return searchBackwards(value);
     }
+
+    @Override
+    public native UnfilteredIntArray asUnfiltered();
 }

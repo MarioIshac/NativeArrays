@@ -1,25 +1,49 @@
 package me.theeninja.nativearrays.core.collection;
 
-import me.theeninja.nativearrays.core.comparator.LongComparator;
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.consumers.pair.IndexLongPairConsumer;
 
-import java.util.function.*;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 
 import static me.theeninja.nativearrays.core.array.Array.NOT_FOUND;
 
 public interface LongCollection<
     T extends LongCollection<
-        T, UT
+        T,
+        FT,
+        UT
     >,
-    UT extends T
+    FT extends LongCollection<
+        T,
+        FT,
+        UT
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends LongCollection<
+        T,
+        FT,
+        UT
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >
 > extends NativeCollection<
     T,
+    FT,
     UT,
     LongConsumer,
     IndexLongPairConsumer,
     LongUnaryOperator,
+    LongBinaryOperator,
     LongPredicate,
-    LongComparator,
     long[]
 > {
     int get(final long index);

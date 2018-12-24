@@ -1,19 +1,37 @@
 package me.theeninja.nativearrays.core.array;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
 import me.theeninja.nativearrays.core.array.filtered.FilteredLongArray;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredLongArray;
 import me.theeninja.nativearrays.core.collection.LongCollection;
-import me.theeninja.nativearrays.core.comparator.LongComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexLongPairConsumer;
 
-import java.util.function.*;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 
 public abstract class LongArray<
     FT extends LongArray<
         FT,
         UT
+    > & FilteredCollection<
+        LongArray<
+            FT,
+            UT
+        >,
+        FT,
+        UT
     >,
     UT extends LongArray<
+        FT,
+        UT
+    > & UnfilteredCollection<
+        LongArray<
+            FT,
+            UT
+        >,
         FT,
         UT
     >
@@ -29,13 +47,13 @@ public abstract class LongArray<
     LongUnaryOperator,
     LongBinaryOperator,
     LongPredicate,
-    LongComparator,
     long[]
 > implements LongCollection<
     LongArray<
         FT,
         UT
     >,
+    FT,
     UT
 > {
     static {
@@ -61,7 +79,8 @@ public abstract class LongArray<
     @Override
     public native long searchBackwards(final long value);
 
-    public abstract long count(final long value);
+    @Override
+    public native long count(final long value);
 
     public boolean contains(final long value) {
         return searchForwards(value) != NOT_FOUND;

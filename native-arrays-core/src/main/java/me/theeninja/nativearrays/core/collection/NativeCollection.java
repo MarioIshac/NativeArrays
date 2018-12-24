@@ -1,5 +1,8 @@
 package me.theeninja.nativearrays.core.collection;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
+
 /**
  *
  *
@@ -8,17 +11,55 @@ package me.theeninja.nativearrays.core.collection;
  * @param <TIVC> Index-value-pair consumer specialized for associated primitive
  * @param <TVU> Unary operator specialized with associated primitive
  * @param <TVP> Predicate specialized with associated primitive
- * @param <TVS> Comparator/Sorter specialized with associated primitive
  * @param <TA> Java array type specialized with associated primitive
  */
 public interface NativeCollection<
-    T,
-    UT,
+    T extends NativeCollection<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    >,
+    FT extends NativeCollection<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends NativeCollection<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >,
     TVC,
     TIVC,
     TVU,
+    TVB,
     TVP,
-    TVS,
     TA
 > {
     UT rFilter(TVP predicate);
@@ -79,10 +120,9 @@ public interface NativeCollection<
      */
     long getSize();
 
+    void sort(TVB comparator, long startIndex, long endIndex);
 
-    /**
-     * Sorts the internal array using an implementation of merge sort. The sorting is stable.
-     */
-    void sort();
-    void sort(TVS comparator);
+    default void sort(TVB comparator) {
+        sort(comparator, 0, getSize() - 1);
+    }
 }

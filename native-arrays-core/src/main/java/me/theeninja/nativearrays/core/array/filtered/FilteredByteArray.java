@@ -2,14 +2,23 @@ package me.theeninja.nativearrays.core.array.filtered;
 
 import me.theeninja.nativearrays.core.array.ByteArray;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredByteArray;
-import me.theeninja.nativearrays.core.comparator.ByteComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexBytePairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ByteConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ByteBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.ByteUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.BytePredicate;
 
-public class FilteredByteArray extends ByteArray<FilteredByteArray, UnfilteredByteArray> {
+public class FilteredByteArray extends ByteArray<
+    FilteredByteArray,
+    UnfilteredByteArray
+> implements FilteredCollection<
+    ByteArray<
+        FilteredByteArray,
+        UnfilteredByteArray
+    >,
+    FilteredByteArray,
+    UnfilteredByteArray
+> {
     public FilteredByteArray(long size) {
         super(size);
     }
@@ -30,9 +39,6 @@ public class FilteredByteArray extends ByteArray<FilteredByteArray, UnfilteredBy
     public native void set(long index, byte value);
 
     @Override
-    public native long count(byte value);
-
-    @Override
     public native void fill(byte value);
 
     @Override
@@ -45,10 +51,7 @@ public class FilteredByteArray extends ByteArray<FilteredByteArray, UnfilteredBy
     public native void iMap(ByteUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(ByteComparator comparator);
+    public native void sort(ByteBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native byte[] toJavaArray();
@@ -64,4 +67,7 @@ public class FilteredByteArray extends ByteArray<FilteredByteArray, UnfilteredBy
 
     @Override
     public native void copyInto(UnfilteredByteArray nativeArray, long offset, long newSize);
+
+    @Override
+    public native UnfilteredByteArray asUnfiltered();
 }

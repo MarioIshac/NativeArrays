@@ -2,14 +2,23 @@ package me.theeninja.nativearrays.core.array.unfiltered;
 
 import me.theeninja.nativearrays.core.array.ShortArray;
 import me.theeninja.nativearrays.core.array.filtered.FilteredShortArray;
-import me.theeninja.nativearrays.core.comparator.ShortComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexShortPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ShortConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ShortBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.ShortUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.ShortPredicate;
 
-public class UnfilteredShortArray extends ShortArray<FilteredShortArray, UnfilteredShortArray> {
+public class UnfilteredShortArray extends ShortArray<
+    FilteredShortArray,
+    UnfilteredShortArray
+> implements UnfilteredCollection<
+    ShortArray<
+        FilteredShortArray,
+        UnfilteredShortArray
+    >,
+    FilteredShortArray,
+    UnfilteredShortArray
+> {
     public UnfilteredShortArray(String size) {
         super(size);
     }
@@ -24,13 +33,10 @@ public class UnfilteredShortArray extends ShortArray<FilteredShortArray, Unfilte
     public native void set(long index, short value);
 
     @Override
-    public native long count(short value);
-
-    @Override
     public native void fill(short value);
 
     @Override
-    public native int reduce(ShortBinaryOperator reducer);
+    public native short reduce(ShortBinaryOperator reducer);
 
     @Override
     public native FilteredShortArray iFilter(ShortPredicate predicate);
@@ -45,10 +51,7 @@ public class UnfilteredShortArray extends ShortArray<FilteredShortArray, Unfilte
     public native void iMap(ShortUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(ShortComparator comparator);
+    public native void sort(ShortBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native short[] toJavaArray();

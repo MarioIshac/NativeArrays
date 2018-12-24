@@ -1,6 +1,7 @@
 package me.theeninja.nativearrays.core.collection;
 
-import me.theeninja.nativearrays.core.comparator.IntComparator;
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
 
 import java.util.function.IntBinaryOperator;
@@ -10,17 +11,37 @@ import java.util.function.IntUnaryOperator;
 
 public interface IntCollection<
     T extends IntCollection<
-        T, UT
+        T,
+        FT,
+        UT
     >,
-    UT extends T
+    FT extends IntCollection<
+        T,
+        FT,
+        UT
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends IntCollection<
+        T,
+        FT,
+        UT
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >
 > extends NativeCollection<
     T,
+    FT,
     UT,
     IntConsumer,
     IndexIntPairConsumer,
     IntUnaryOperator,
+    IntBinaryOperator,
     IntPredicate,
-    IntComparator,
     int[]
 > {
     int get(final long index);

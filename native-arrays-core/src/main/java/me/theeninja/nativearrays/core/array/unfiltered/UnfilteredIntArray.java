@@ -1,17 +1,25 @@
 package me.theeninja.nativearrays.core.array.unfiltered;
 
+import me.theeninja.nativearrays.core.array.IntArray;
 import me.theeninja.nativearrays.core.array.filtered.FilteredIntArray;
 import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
-import me.theeninja.nativearrays.core.array.IntArray;
-import me.theeninja.nativearrays.core.comparator.IntComparator;
-import me.theeninja.nativearrays.core.predicates.FloatPredicate;
 
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
-public class UnfilteredIntArray extends IntArray<FilteredIntArray, UnfilteredIntArray> {
+public class UnfilteredIntArray extends IntArray<
+    FilteredIntArray,
+    UnfilteredIntArray
+> implements UnfilteredCollection<
+    IntArray<
+        FilteredIntArray,
+        UnfilteredIntArray
+    >,
+    FilteredIntArray,
+    UnfilteredIntArray
+>{
     public UnfilteredIntArray(long size) {
         super(size);
     }
@@ -41,28 +49,13 @@ public class UnfilteredIntArray extends IntArray<FilteredIntArray, UnfilteredInt
     public native void set(long index, int value);
 
     @Override
-    public native long searchForwards(int value);
-
-    @Override
-    public native long searchBackwards(int value);
-
-    @Override
-    public native long count(int value);
-
-    @Override
-    public native boolean contains(int value);
-
-    @Override
     public native void fill(int value);
 
     @Override
     public native int reduce(IntBinaryOperator reducer);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(IntComparator comparator);
+    public native void sort(IntBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native int[] toJavaArray();

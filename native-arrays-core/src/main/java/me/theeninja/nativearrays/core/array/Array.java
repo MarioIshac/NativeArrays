@@ -1,5 +1,7 @@
 package me.theeninja.nativearrays.core.array;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.collection.NativeCollection;
 
 import java.io.IOException;
@@ -26,24 +28,62 @@ import java.util.function.Supplier;
  * @param <TA> The correlated java array object (e.g {@code int[]} for {@code IntArray} and {@code float[]} for {@code FloatArray}
  */
 public abstract class Array<
-    T extends Array<T, FT, UT, TVC, TIVC, TVU, TVB, TVP, TVS, TA>,
-    FT extends T,
-    UT extends T,
+    T extends Array<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    >,
+    FT extends Array<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    > & FilteredCollection<
+        T,
+        FT,
+        UT
+    >,
+    UT extends Array<
+        T,
+        FT,
+        UT,
+        TVC,
+        TIVC,
+        TVU,
+        TVB,
+        TVP,
+        TA
+    > & UnfilteredCollection<
+        T,
+        FT,
+        UT
+    >,
     TVC,
     TIVC,
     TVU,
     TVB,
     TVP,
-    TVS,
     TA
 > implements AutoCloseable, NativeCollection<
     T,
+    FT,
     UT,
     TVC,
     TIVC,
     TVU,
+    TVB,
     TVP,
-    TVS,
     TA
 > {
     /**

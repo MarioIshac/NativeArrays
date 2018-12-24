@@ -1,9 +1,9 @@
 package me.theeninja.nativearrays.core.array;
 
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredShortArray;
-import me.theeninja.nativearrays.core.collection.NativeCollection;
 import me.theeninja.nativearrays.core.collection.ShortCollection;
-import me.theeninja.nativearrays.core.comparator.ShortComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexShortPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.ShortConsumer;
 import me.theeninja.nativearrays.core.operators.binary.ShortBinaryOperator;
@@ -14,8 +14,22 @@ public abstract class ShortArray<
     FT extends ShortArray<
         FT,
         UT
+    > & FilteredCollection<
+        ShortArray<
+            FT,
+            UT
+        >,
+        FT,
+        UT
     >,
     UT extends ShortArray<
+        FT,
+        UT
+    > & UnfilteredCollection<
+        ShortArray<
+            FT,
+            UT
+        >,
         FT,
         UT
     >
@@ -31,13 +45,13 @@ public abstract class ShortArray<
     ShortUnaryOperator,
     ShortBinaryOperator,
     ShortPredicate,
-    ShortComparator,
     short[]
 > implements ShortCollection<
     ShortArray<
         FT,
         UT
     >,
+    FT,
     UT
 > {
     static {
@@ -56,7 +70,7 @@ public abstract class ShortArray<
 
     public static native void unload();
 
-    public abstract int reduce(ShortBinaryOperator reducer);
+    public abstract short reduce(ShortBinaryOperator reducer);
 
     @Override
     public native long searchForwards(final short value);
@@ -71,6 +85,9 @@ public abstract class ShortArray<
 
     @Override
     native long malloc();
+
+    @Override
+    public native long count(short value);
 
     @Override
     public native UT copy();

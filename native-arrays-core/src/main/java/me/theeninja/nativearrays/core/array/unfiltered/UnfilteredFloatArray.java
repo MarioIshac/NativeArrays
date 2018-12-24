@@ -2,14 +2,23 @@ package me.theeninja.nativearrays.core.array.unfiltered;
 
 import me.theeninja.nativearrays.core.array.FloatArray;
 import me.theeninja.nativearrays.core.array.filtered.FilteredFloatArray;
-import me.theeninja.nativearrays.core.comparator.FloatComparator;
 import me.theeninja.nativearrays.core.consumers.pair.IndexFloatPairConsumer;
 import me.theeninja.nativearrays.core.consumers.value.FloatConsumer;
 import me.theeninja.nativearrays.core.operators.binary.FloatBinaryOperator;
 import me.theeninja.nativearrays.core.operators.unary.FloatUnaryOperator;
 import me.theeninja.nativearrays.core.predicates.FloatPredicate;
 
-public class UnfilteredFloatArray extends FloatArray<FilteredFloatArray, UnfilteredFloatArray> {
+public class UnfilteredFloatArray extends FloatArray<
+    FilteredFloatArray,
+    UnfilteredFloatArray
+> implements UnfilteredCollection<
+    FloatArray<
+        FilteredFloatArray,
+        UnfilteredFloatArray
+    >,
+    FilteredFloatArray,
+    UnfilteredFloatArray
+>{
     public UnfilteredFloatArray(String size) {
         super(size);
     }
@@ -22,9 +31,6 @@ public class UnfilteredFloatArray extends FloatArray<FilteredFloatArray, Unfilte
 
     @Override
     public native void set(long index, float value);
-
-    @Override
-    public native long count(float value);
 
     @Override
     public native void fill(float value);
@@ -45,10 +51,7 @@ public class UnfilteredFloatArray extends FloatArray<FilteredFloatArray, Unfilte
     public native void iMap(FloatUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(FloatComparator comparator);
+    public native void sort(FloatBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native float[] toJavaArray();

@@ -1,18 +1,36 @@
 package me.theeninja.nativearrays.core.array;
 
-import me.theeninja.nativearrays.core.collection.IntCollection;
-import me.theeninja.nativearrays.core.comparator.IntComparator;
+import me.theeninja.nativearrays.core.array.filtered.FilteredCollection;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredCollection;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
+import me.theeninja.nativearrays.core.collection.IntCollection;
 import me.theeninja.nativearrays.core.consumers.pair.IndexIntPairConsumer;
 
-import java.util.function.*;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 
 public abstract class IntArray<
     FT extends IntArray<
         FT,
         UT
+    > & FilteredCollection<
+        IntArray<
+            FT,
+            UT
+        >,
+        FT,
+        UT
     >,
     UT extends IntArray<
+        FT,
+        UT
+    > & UnfilteredCollection<
+        IntArray<
+            FT,
+            UT
+        >,
         FT,
         UT
     >
@@ -28,13 +46,13 @@ public abstract class IntArray<
     IntUnaryOperator,
     IntBinaryOperator,
     IntPredicate,
-    IntComparator,
     int[]
 > implements IntCollection<
     IntArray<
         FT,
         UT
     >,
+    FT,
     UT
 > {
     static {
@@ -68,6 +86,14 @@ public abstract class IntArray<
 
     @Override
     public native long searchBackwards(final int value);
+
+    @Override
+    public boolean contains(int value) {
+        return searchForwards(value) != NOT_FOUND;
+    }
+
+    @Override
+    public native long count(final int value);
 
     public static native void unload();
 

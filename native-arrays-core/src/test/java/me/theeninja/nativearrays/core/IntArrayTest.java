@@ -1,12 +1,15 @@
 package me.theeninja.nativearrays.core;
 
 import me.theeninja.nativearrays.core.array.IntArray;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.IntBinaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntArrayTest {
-    /* private final IntArray<?, ?> intArray = IntArray.fromJavaArray(1, 0, 1);
+    private final UnfilteredIntArray intArray = IntArray.fromJavaArray(1, 0, 1);
 
     private static final int INT_ARRAY_SIZE = 3;
 
@@ -15,8 +18,6 @@ public class IntArrayTest {
         final int observedValue = getIntArray().get(1);
 
         assertEquals(0, observedValue);
-
-        final IntArray intArray = IntArray.fromJavaArray(1, 2, 3);
     }
 
     @Test
@@ -68,12 +69,14 @@ public class IntArrayTest {
         return true;
     }
 
-    private final IntArray unsortedIntArray = IntArray.fromJavaArray(3, 2, 1);
-    private final IntArray sortedIntArray = IntArray.fromJavaArray(1, 2, 3);
+    private final UnfilteredIntArray unsortedintArray = IntArray.fromJavaArray(3, 2, 1);
+    private final UnfilteredIntArray sortedIntArray = IntArray.fromJavaArray(1, 2, 3);
 
     @Test
     void testSort() {
-        getUnsortedIntArray().sort();
+        IntBinaryOperator intArraySorter = PrimitiveComparators.forNoOverflowSignedInt(PrimitiveComparators.Order.ASCENDING);
+
+        getUnsortedIntArray().sort(intArraySorter);
 
         final boolean areEqual = areEqual(getUnsortedIntArray(), getSortedIntArray());
 
@@ -134,12 +137,16 @@ public class IntArrayTest {
         assertIntJavaArraysEquals(getIntArray(), javaArray);
     }
 
+    private static int getAndIncrrement(int[] number) {
+        return number[0]++;
+    }
+
     @Test
     void testForEachValue() {
         int[] mutableIndex = new int[1];
 
         getIntArray().forEachValue(observedValue -> {
-            final int index = mutableIndex[0]++;
+            final int index = getAndIncrrement(mutableIndex);
 
             final int expectedValue = getIntArray().get(index);
 
@@ -152,7 +159,7 @@ public class IntArrayTest {
         int[] mutableIndex = new int[1];
 
         getIntArray().forEachIndexValuePair((observedIndex, observedValue) -> {
-            final int expectedIndex = mutableIndex[0]++;
+            final int expectedIndex = getAndIncrrement(mutableIndex);
 
             assertEquals(expectedIndex, observedIndex);
 
@@ -179,9 +186,9 @@ public class IntArrayTest {
         assertEquals(getIntArray().getSize(), INT_ARRAY_SIZE);
     }
 
-    private final IntArray firstEqualArray = IntArray.fromJavaArray(4, 5, 6);
-    private final IntArray secondEqualArray = IntArray.fromJavaArray(4, 5, 6);
-    private final IntArray unEqualArray = IntArray.fromJavaArray(4, 5, 7);
+    private final UnfilteredIntArray firstEqualArray = IntArray.fromJavaArray(4, 5, 6);
+    private final UnfilteredIntArray secondEqualArray = IntArray.fromJavaArray(4, 5, 6);
+    private final UnfilteredIntArray unEqualArray = IntArray.fromJavaArray(4, 5, 7);
 
     @Test
     void testEquals() {
@@ -201,27 +208,27 @@ public class IntArrayTest {
         assertEquals(representation, "[1, 0, 1]");
     }
 
-    private IntArray<?, ?> getIntArray() {
+    private UnfilteredIntArray getIntArray() {
         return intArray;
     }
 
-    private IntArray getUnsortedIntArray() {
-        return unsortedIntArray;
+    private UnfilteredIntArray getUnsortedIntArray() {
+        return unsortedintArray;
     }
 
-    private IntArray getSortedIntArray() {
+    private UnfilteredIntArray getSortedIntArray() {
         return sortedIntArray;
     }
 
-    private IntArray getFirstEqualArray() {
+    private UnfilteredIntArray getFirstEqualArray() {
         return firstEqualArray;
     }
 
-    private IntArray getSecondEqualArray() {
+    private UnfilteredIntArray getSecondEqualArray() {
         return secondEqualArray;
     }
 
-    private IntArray getUnEqualArray() {
+    private UnfilteredIntArray getUnEqualArray() {
         return unEqualArray;
-    } */
+    }
 }

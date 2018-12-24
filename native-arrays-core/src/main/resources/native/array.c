@@ -967,3 +967,106 @@ JNIEXPORT jlong JNICALL JNI_SUPER_METHOD(count)(JNIEnv* env, jobject instance, J
 
     return (jlong) count;
 }
+
+void swap(JAVA_TYPE* arrayAddress, uint_fast64_t firstIndex, uint_fast64_t secondIndex) {
+    jlong tempValue = arrayAddress[firstIndex];
+    arrayAddress[firstIndex] = arrayAddress[secondIndex];
+    arrayAddress[secondIndex] = tempValue;
+}
+
+JNIEXPORT void JNICALL JNI_FILTERED_METHOD(sort)(JNIEnv* env, jobject array, jobject comparator, jlong startIndex, jlong endIndex) {
+    JAVA_TYPE* arrayAddress = getAddress(env, array);
+
+    filteredSortHelper(array, comparator, startIndex, endIndex, arrayAddress);
+}
+
+void filteredSortHelper(jobject array, jobject comparator, uint_fast64_t startIndex, uint_fast64_t endIndex, JAVA_TYPE* arrayAddress) {
+    if (startIndex < endIndex) {
+        uint_fast64_t partitionIndex = filteredPartition(arrayAddress, startIndex, endIndex);
+
+        filteredSortHelper(array, startIndex, partitionIndex - 1);
+        filteredSorthelper(array, partitionIndex + 1, endIndex);
+    }
+}
+
+void filteredPartition(JAVA_TYPE* arrayAddress, uint_fast64_t startIndex, uint_fast64_t endIndex, JAVA_TYPE excludedValue) {
+    JAVA_TYPE pivotValue = arrayAddress[endIndex];
+
+    int pivotIndex = startIndex - 1;
+
+    for (uint_fast64_t arrayElementIndex = startIndex; arrayElementIndex < endIndex; arrayElementIndex++) {
+        const JAVA_TYPE arrayElementValue = arrayAddress[arrayElementIndex];
+
+        if (arrayElementValue != excludedValue && arrayElementValue <= pivotValue) {
+            pivotIndex++;
+
+            swap(arrayAddress, pivotIndex, arrayElementIndex);
+        }
+    }
+
+    pivotIndex++;
+
+    swap(arrayAddress, pivotIndex, endIndex);
+
+    return pivotIndex;
+}
+
+JNIEXPORT void JNICALL JNI_UNFILTERED_METHOD(sort)(JNIEnv* env, jobject array, jobject comparator, jlong startIndex, jlong endIndex) {
+    JAVA_TYPE* arrayAddress = getAddress(env, array);
+
+    filteredSortHelper(array, comparator, startIndex, endIndex, arrayAddress);
+}
+
+void unfilteredSortHelper(jobject array, jobject comparator, uint_fast64_t startIndex, uint_fast64_t endIndex, JAVA_TYPE* arrayAddress) {
+    if (startIndex < endIndex) {
+        uint_fast64_t partitionIndex = unfilteredPartition(arrayAddress, startIndex, endIndex);
+
+        filteredSortHelper(array, startIndex, partitionIndex - 1);
+        filteredSorthelper(array, partitionIndex + 1, endIndex);
+    }
+}
+
+void unfilteredPartition(JAVA_TYPE* arrayAddress, uint_fast64_t startIndex, uint_fast64_t endIndex, JAVA_TYPE excludedValue) {
+    JAVA_TYPE pivotValue = arrayAddress[endIndex];
+
+    int pivotIndex = startIndex - 1;
+
+    for (uint_fast64_t arrayElementIndex = startIndex; arrayElementIndex < endIndex; arrayElementIndex++) {
+        const JAVA_TYPE arrayElementValue = arrayAddress[arrayElementIndex];
+
+        if (arrayElementValue <= pivotValue) {
+            pivotIndex++;
+
+            swap(arrayAddress, pivotIndex, arrayElementIndex);
+        }
+    }
+
+    pivotIndex++;
+
+    swap(arrayAddress, pivotIndex, endIndex);
+
+    return pivotIndex;
+}
+
+JNIEXPORT jobject JNICALL JNI_FILTERED_METHOD(asUnfilteredUnstably)(JNIEnv* env, jobject filteredArray) {
+    JAVA_TYPE* address = getAddress(env, filteredArray);
+    uint_fast64_t size = getSize(env, filteredArray);
+
+    JAVA_TYPE excludedValue = getExcludedValue(env, filteredArray);
+
+    uint_fast64_t excludedValueCount = 0;
+
+    for (uint_fast64_t index = 0; index < size - excludedValueCount; index++) {
+        const JAVA_TYPE value = address[index];
+
+        if (value == excludedValue) {
+            const uint_fast64_t indexToSwapOut = size - excludedValueCount - 1
+
+            swap(address, index, indexToSwapOut);
+        }
+    }
+
+    jobject unfilteredArray = (*env)->NewObject(env, unfilteredArrayClass, unfilteredArrayConstructor, address, size - excludedValueCount);
+
+    return unfilteredArray;
+}

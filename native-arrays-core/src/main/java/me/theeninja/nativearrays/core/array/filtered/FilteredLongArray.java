@@ -1,17 +1,27 @@
 package me.theeninja.nativearrays.core.array.filtered;
 
-import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredDoubleArray;
-import me.theeninja.nativearrays.core.consumers.pair.IndexLongPairConsumer;
+import me.theeninja.nativearrays.core.array.IntArray;
 import me.theeninja.nativearrays.core.array.LongArray;
-import me.theeninja.nativearrays.core.comparator.LongComparator;
+import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredIntArray;
 import me.theeninja.nativearrays.core.array.unfiltered.UnfilteredLongArray;
+import me.theeninja.nativearrays.core.consumers.pair.IndexLongPairConsumer;
 
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
-public class FilteredLongArray extends LongArray<FilteredLongArray, UnfilteredLongArray> {
+public class FilteredLongArray extends LongArray<
+    FilteredLongArray,
+    UnfilteredLongArray
+> implements FilteredCollection<
+    LongArray<
+        FilteredLongArray,
+        UnfilteredLongArray
+    >,
+    FilteredLongArray,
+    UnfilteredLongArray
+> {
     public FilteredLongArray(long size) {
         super(size);
     }
@@ -32,9 +42,6 @@ public class FilteredLongArray extends LongArray<FilteredLongArray, UnfilteredLo
     public native void set(long index, long value);
 
     @Override
-    public native long count(long value);
-
-    @Override
     public native void fill(long value);
 
     @Override
@@ -47,10 +54,7 @@ public class FilteredLongArray extends LongArray<FilteredLongArray, UnfilteredLo
     public native void iMap(LongUnaryOperator mapper);
 
     @Override
-    public native void sort();
-
-    @Override
-    public native void sort(LongComparator comparator);
+    public native void sort(LongBinaryOperator comparator, long startIndex, long endIndex);
 
     @Override
     public native long[] toJavaArray();
@@ -69,4 +73,7 @@ public class FilteredLongArray extends LongArray<FilteredLongArray, UnfilteredLo
 
     @Override
     public native UnfilteredLongArray copy();
+
+    @Override
+    public native UnfilteredLongArray asUnfiltered();
 }
